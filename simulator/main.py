@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 from simulator.payment_generator import generate_payment
 from simulator.merchant_generator import generate_merchant
+from simulator.refund_generator import generate_refunds
 
 import random
 
@@ -44,6 +45,20 @@ def main():
 
         payments.append(payment)
 
+    refunds = []
+
+    next_refund_number = 1
+
+    for payment in payments:
+        payment_refunds = generate_refunds(
+            payment=payment,
+            refund_number_start=next_refund_number,
+        )
+
+        refunds.extend(payment_refunds)
+
+        next_refund_number += len(payment_refunds)
+
     print(f"Generated {len(payments)} payments")
     print("-----------------------------")
 
@@ -59,6 +74,17 @@ def main():
             f"{payment.status}"
         )
 
+    print()
+    print(f"Generated {len(refunds)} refunds")
+    print("-----------------------------")
+
+    for refund in refunds:
+        print(
+            f"{refund.refund_id} | "
+            f"{refund.payment_id} | "
+            f"₹{refund.amount} | "
+            f"{refund.status}"
+        )
 
 if __name__ == "__main__":
     main()
