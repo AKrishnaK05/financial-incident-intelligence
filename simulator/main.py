@@ -6,9 +6,15 @@ For now, this program generates and displays one payment.
 
 from datetime import datetime, timezone
 
+from financial_engine.settlement_engine import calculate_settlement
+from financial_engine.batch_builder import build_settlement_batch
+
 from simulator.payment_generator import generate_payment
 from simulator.merchant_generator import generate_merchant
 from simulator.refund_generator import generate_refunds
+from simulator.webhook_generator import generate_refund_webhook
+from simulator.scenario_assigner import assign_refund_event_latency
+from simulator.incident_generator import generate_refund_event_latency_incident
 
 import random
 
@@ -25,6 +31,15 @@ def main():
         8,
         1,
         tzinfo=timezone.utc,
+    )
+
+    settlement_cutoff = datetime(
+    2026,
+    8,
+    20,
+    12,
+    0,
+    tzinfo=timezone.utc,
     )
 
     merchants = []
@@ -59,6 +74,62 @@ def main():
 
         next_refund_number += len(payment_refunds)
 
+    incident_payment, incident_refund = (
+    generate_refund_event_latency_incident()
+    )
+
+    payments.append(incident_payment)
+    refunds.append(incident_refund)
+
+    incident_refund_id = incident_refund.refund_id
+
+    webhook_events = []
+
+    for event_number, refund in enumerate(refunds, start=1):
+        
+        scenario = None
+
+        if refund.refund_id == incident_refund_id:
+            scenario = "REFUND_EVENT_LATENCY"
+
+        event = generate_refund_webhook(
+            event_number=event_number,
+            refund=refund,
+            scenario=scenario,
+        )
+
+        webhook_events.append(event)
+    
+    settlements = []
+
+    for settlement_number, payment in enumerate(payments, start=1):
+        settlement = calculate_settlement(
+            settlement_number=settlement_number,
+            payment=payment,
+            refunds=refunds,
+            webhook_events=webhook_events,
+            cutoff_at=settlement_cutoff,
+        )
+
+        settlements.append(settlement)
+
+    settlement_batches = []
+
+    next_batch_number = 1
+
+    for merchant in merchants:
+        batch = build_settlement_batch(
+            merchant=merchant,
+            batch_number=next_batch_number,
+            payments=payments,
+            cutoff_at=settlement_cutoff,
+        )
+
+        if batch.transaction_count > 0:
+            settlement_batches.append(batch)
+
+        next_batch_number += 1
+
     print(f"Generated {len(payments)} payments")
     print("-----------------------------")
 
@@ -84,6 +155,48 @@ def main():
             f"{refund.payment_id} | "
             f"₹{refund.amount} | "
             f"{refund.status}"
+        )
+
+    print()
+    print(f"Generated {len(webhook_events)} webhook events")
+    print("-----------------------------")
+
+    for event in webhook_events:
+        print(
+            f"{event.event_id} | "
+            f"{event.entity_id} | "
+            f"{event.event_type} | "
+            f""
+            f"business={event.business_event_at} | "
+            f"emitted={event.emitted_at} | "
+            f"delivered={event.delivered_at}"
+        )
+
+    print()
+    print(f"Generated {len(settlements)} settlements")
+    print("-----------------------------")
+
+    for settlement in settlements:
+        print(
+            f"{settlement.settlement_id} | "
+            f"{settlement.payment_id} | "
+            f"gross=₹{settlement.gross_amount} | "
+            f"expected=₹{settlement.expected_net_amount} | "
+            f"observed=₹{settlement.observed_net_amount} | "
+            f"status={settlement.status}"
+        )
+
+    print()
+    print(f"Generated {len(settlement_batches)} settlement batches")
+    print("-----------------------------")
+
+    for batch in settlement_batches:
+        print(
+            f"{batch.batch_id} | "
+            f"{batch.merchant_id} | "
+            f"transactions={batch.transaction_count} | "
+            f"expected=₹{batch.expected_amount} | "
+            f"status={batch.status}"
         )
 
 if __name__ == "__main__":
