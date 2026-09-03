@@ -9,6 +9,21 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+# ---------------------------------------------------------------------------
+# Merchent
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Merchant:
+    """
+    Represents a merchant using the financial system.
+    """
+
+    merchant_id: str
+    merchant_name: str
+    segment: str
+    currency: str
+    settlement_cycle: str
 
 # ---------------------------------------------------------------------------
 # Payment

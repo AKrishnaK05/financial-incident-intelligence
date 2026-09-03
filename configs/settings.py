@@ -8,6 +8,8 @@ Central configuration for the Financial Incident Intelligence project.
 
 RANDOM_SEED = 42
 
+MERCHANT_COUNT = 50
+
 
 # ---------------------------------------------------------------------------
 # Synthetic data generation
