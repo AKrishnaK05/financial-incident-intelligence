@@ -12,17 +12,13 @@ import os
 from google import genai
 from google.genai import types
 
-from investigation.agent import InvestigationNarrative
 from investigation.agent_context import AgentContext
-from investigation.agent_adapter import AgentResponse
-from investigation.agent_prompt import (
-    build_investigation_prompt,
-)
+from investigation.agent_prompt import build_investigation_prompt
 from investigation.agent_schema import (
+    AgentOutput,
     convert_agent_output,
-    parse_agent_output,
 )
-from investigation.llm_interface import InvestigationLLM
+from investigation.llm_interface import InvestigationLLM, AgentResponse
 
 
 class GeminiInvestigationAgent(InvestigationLLM):
@@ -55,7 +51,7 @@ class GeminiInvestigationAgent(InvestigationLLM):
     ) -> AgentResponse:
         """
         Send curated investigation context to Gemini
-        and convert its structured response.
+        and receive a structured investigation response.
         """
 
         prompt = build_investigation_prompt(
@@ -67,10 +63,11 @@ class GeminiInvestigationAgent(InvestigationLLM):
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
+                response_schema=AgentOutput,
             ),
         )
 
-        output = parse_agent_output(
+        output = AgentOutput.model_validate_json(
             response.text
         )
 
