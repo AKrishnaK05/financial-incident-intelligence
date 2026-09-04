@@ -12,6 +12,7 @@ from investigation.evidence import collect_incident_evidence
 from investigation.timeline import analyze_timeline
 from investigation.hypothesis_engine import evaluate_hypotheses
 from investigation.blast_radius import analyze_blast_radius
+from investigation.incident_correlator import correlate_incidents
 
 from incidents.detector import detect_incidents
 
@@ -243,11 +244,20 @@ def main():
     print("Incident Evidence")
     print("-----------------------------")
 
+    evidence_map = {}
+    timeline_map = {}
+
+
     for incident in detected_incidents:
         evidence = collect_incident_evidence(
             incident,
             state_graph,
         )
+
+        timeline = analyze_timeline(evidence)
+
+        evidence_map[incident.incident_id] = evidence
+        timeline_map[incident.incident_id] = timeline
 
         print(f"Incident: {evidence.incident_id}")
 
@@ -291,8 +301,8 @@ def main():
         )
 
         print(
-        f"  Observed: "
-        f"₹{evidence.settlement.observed_net_amount}"
+            f"  Observed: "
+            f"₹{evidence.settlement.observed_net_amount}"
         )
 
         if evidence.batch is not None:
@@ -302,6 +312,61 @@ def main():
             )
         else:
             print("Batch: NOT FOUND")
+
+    incident_clusters = correlate_incidents(
+    detected_incidents,
+    evidence_map,
+    timeline_map,
+    )
+
+    print()
+    print("Incident Clusters")
+    print("-----------------------------")
+
+    for cluster in incident_clusters:
+        print(
+            f"{cluster.cluster_id}: "
+            f"{len(cluster.incidents)} incidents "
+            f"({cluster.scope})"
+        )
+
+        print(
+            f"  Mechanism: "
+            f"{cluster.mechanism}"
+        )
+
+        print(
+            f"  Affected merchants: "
+            f"{len(cluster.affected_merchants)}"
+        )
+
+        print(
+            f"  First affected: "
+            f"{cluster.first_affected_at}"
+        )
+
+        print(
+            f"  Last affected: "
+            f"{cluster.last_affected_at}"
+        )
+
+        print(
+            f"  Correlation: "
+            f"{cluster.correlation_reasons}"
+        )
+
+        print(
+            f"  Scope reason: "
+            f"{cluster.scope_reason}"
+        )
+
+        print("  Incidents:")
+
+        for incident in cluster.incidents:
+            print(
+                f"    {incident.incident_id}: "
+                f"{incident.payment_id}"
+            )
 
     timeline = analyze_timeline(evidence)
 
