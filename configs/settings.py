@@ -10,6 +10,9 @@ RANDOM_SEED = 42
 
 MERCHANT_COUNT = 50
 
+AGENT_PROVIDER = "openai"
+AGENT_MODEL = "gpt-5.6-luna"
+
 
 # ---------------------------------------------------------------------------
 # Synthetic data generation

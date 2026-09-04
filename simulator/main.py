@@ -18,7 +18,7 @@ from investigation.exposure import calculate_financial_exposure
 from investigation.state_graph import build_state_graph
 from investigation.agent_context import build_agent_context
 from investigation.agent_prompt import build_investigation_prompt
-from investigation.agent_adaptor import MockInvestigationAgent
+from investigation.agent_factory import create_investigation_agent
 from investigation.agent_validator import validate_investigation_narrative
 
 from incidents.detector import detect_incidents 
@@ -763,7 +763,7 @@ def main():
         agent_context
     )
 
-    agent = MockInvestigationAgent()
+    agent = create_investigation_agent()
 
     agent_response = agent.investigate(
         agent_context
