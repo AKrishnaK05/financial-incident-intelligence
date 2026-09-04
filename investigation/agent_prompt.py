@@ -34,6 +34,13 @@ Rules:
    governance recommendation.
 10. The human approval requirement is mandatory and must
     never be bypassed.
+11. Treat unresolved questions as genuinely unresolved.
+12. Do not claim that an unresolved question has been answered.
+13. If the evidence establishes an immediate failure mechanism
+    but not its underlying cause, explicitly distinguish the
+    mechanism from the underlying cause.
+14. If uncertainty exists in the investigation context,
+    include it in the uncertainty section of the response.
 """
 
 
@@ -127,6 +134,20 @@ Timeline:
   {timeline.webhook_delivery_delay}
 - Refund-to-webhook delay:
   {timeline.refund_to_webhook_delay}
+
+Evidence boundary:
+
+Established facts:
+{chr(10).join(
+    f"- {fact}"
+    for fact in context.evidence_boundary.established_facts
+)}
+
+Unresolved questions:
+{chr(10).join(
+    f"- {question}"
+    for question in context.evidence_boundary.unresolved_questions
+)}
 
 Investigation hypotheses:
 {chr(10).join(hypothesis_lines)}
