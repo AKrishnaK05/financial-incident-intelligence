@@ -1,0 +1,13 @@
+[
+    {
+        "incident_id": "INC_000001",
+        "scenario": "REFUND_EVENT_LATENCY",
+        "root_cause": "REFUND_EVENT_LATENCY",
+        "payment_id": "PAY_INC_000001",
+        "refund_id": "RFND_INC_000001",
+        "settlement_id": "SET_000011",
+        "expected_amount": 7000,
+        "observed_amount": 10000,
+        "exposure_amount": 3000
+    }
+]

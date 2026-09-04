@@ -3,6 +3,8 @@ Entry point for the synthetic financial data simulator.
 
 For now, this program generates and displays one payment.
 """
+import json
+from dataclasses import asdict
 
 from datetime import datetime, timezone
 
@@ -15,6 +17,7 @@ from simulator.refund_generator import generate_refunds
 from simulator.webhook_generator import generate_refund_webhook
 from simulator.scenario_assigner import assign_refund_event_latency
 from simulator.incident_generator import generate_refund_event_latency_incident
+from simulator.ground_truth_generator import generate_incident_ground_truth
 
 import random
 
@@ -117,6 +120,18 @@ def main():
 
     next_batch_number = 1
 
+    incident_ground_truth = None
+
+    for settlement in settlements:
+        if settlement.payment_id == incident_payment.payment_id:
+            incident_ground_truth = generate_incident_ground_truth(
+                incident_number=1,
+                payment=incident_payment,
+                refund=incident_refund,
+                settlement=settlement,
+            )
+            break
+
     for merchant in merchants:
         batch = build_settlement_batch(
             merchant=merchant,
@@ -198,6 +213,18 @@ def main():
             f"expected=₹{batch.expected_amount} | "
             f"status={batch.status}"
         )
+
+    ground_truth_path = "data/ground_truth/incidents.json"
+
+    with open(ground_truth_path, "w", encoding="utf-8") as file:
+        json.dump(
+            [asdict(incident_ground_truth)],
+            file,
+            indent=4,
+        )
+
+    print()
+    print(f"Ground truth written to {ground_truth_path}")
 
 if __name__ == "__main__":
     main()
