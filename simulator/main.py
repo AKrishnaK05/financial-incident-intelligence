@@ -9,6 +9,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 
 from investigation.evidence import collect_incident_evidence
+from investigation.timeline import analyze_timeline
 
 from incidents.detector import detect_incidents
 
@@ -288,6 +289,34 @@ def main():
             )
         else:
             print("Batch: NOT FOUND")
+
+    timeline = analyze_timeline(evidence)
+
+    print()
+    print("Timeline Facts")
+    print("-----------------------------")
+
+    print(
+        f"Refund processed before cutoff: "
+        f"{timeline.refund_processed_before_cutoff}"
+    )
+
+    print(
+        f"Webhook delivered before cutoff: "
+        f"{timeline.webhook_delivered_before_cutoff}"
+    )
+
+    if timeline.webhook_delivery_delay is not None:
+        print(
+            f"Webhook delivery delay: "
+            f"{timeline.webhook_delivery_delay}"
+        )
+
+    if timeline.refund_to_webhook_delay is not None:
+        print(
+            f"Refund to webhook delay: "
+            f"{timeline.refund_to_webhook_delay}"
+        )
     
     print(f"Generated {len(payments)} payments")
     print("-----------------------------")
