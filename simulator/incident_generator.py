@@ -5,9 +5,9 @@ This module creates deterministic financial events used to test
 known incident scenarios.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
-from configs.schema import Payment, Refund
+from configs.schema import Payment, Refund, Merchant
 
 
 def generate_refund_event_latency_incident():
@@ -16,13 +16,21 @@ def generate_refund_event_latency_incident():
 
     Returns
     -------
-    tuple[Payment, Refund]
-        Payment and refund forming the incident.
+    tuple[Merchant, Payment, Refund]
+        Merchant, payment, and refund forming the incident.
     """
+
+    merchant = Merchant(
+        merchant_id="MER_INC_0001",
+        merchant_name="Incident Merchant",
+        segment="ENTERPRISE",
+        currency="INR",
+        settlement_cycle="T1",
+    )
 
     payment = Payment(
         payment_id="PAY_INC_000001",
-        merchant_id="MER_INC_0001",
+        merchant_id=merchant.merchant_id,
         order_id="ORD_INC_000001",
         amount=10000,
         method="UPI",
@@ -41,7 +49,7 @@ def generate_refund_event_latency_incident():
     refund = Refund(
         refund_id="RFND_INC_000001",
         payment_id=payment.payment_id,
-        merchant_id=payment.merchant_id,
+        merchant_id=merchant.merchant_id,
         amount=3000,
         currency="INR",
         requested_at=datetime(
@@ -63,4 +71,4 @@ def generate_refund_event_latency_incident():
         status="PROCESSED",
     )
 
-    return payment, refund
+    return merchant, payment, refund

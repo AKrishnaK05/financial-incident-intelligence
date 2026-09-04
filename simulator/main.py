@@ -19,6 +19,8 @@ from simulator.scenario_assigner import assign_refund_event_latency
 from simulator.incident_generator import generate_refund_event_latency_incident
 from simulator.ground_truth_generator import generate_incident_ground_truth
 
+from investigation.state_graph import build_state_graph
+
 import random
 
 from configs.settings import RANDOM_SEED
@@ -77,10 +79,11 @@ def main():
 
         next_refund_number += len(payment_refunds)
 
-    incident_payment, incident_refund = (
+    incident_merchant, incident_payment, incident_refund = (
     generate_refund_event_latency_incident()
     )
 
+    merchants.append(incident_merchant)
     payments.append(incident_payment)
     refunds.append(incident_refund)
 
@@ -145,6 +148,64 @@ def main():
 
         next_batch_number += 1
 
+    state_graph = build_state_graph(
+    merchants=merchants,
+    payments=payments,
+    refunds=refunds,
+    webhook_events=webhook_events,
+    settlements=settlements,
+    batches=settlement_batches,
+    )
+
+    incident_payment_refunds = state_graph.get_payment_refunds(
+        "PAY_INC_000001"
+    )
+
+    incident_refund_events = state_graph.get_refund_events(
+        "RFND_INC_000001"
+    )
+
+    incident_settlement = state_graph.get_payment_settlement(
+        "PAY_INC_000001"
+    )
+
+    incident_batch = state_graph.get_payment_batch(
+        "PAY_INC_000001"
+    )
+
+    print()
+    print("Incident Graph Traversal")
+    print("-----------------------------")
+
+    print(
+        "Payment:",
+        "PAY_INC_000001"
+    )
+
+    print(
+        "Refunds:",
+        [refund.refund_id for refund in incident_payment_refunds]
+    )
+
+    print(
+        "Webhook events:",
+        [event.event_id for event in incident_refund_events]
+    )
+
+    print(
+        "Settlement:",
+        incident_settlement.settlement_id
+        if incident_settlement
+        else None
+    )
+
+    print(
+        "Batch:",
+        incident_batch.batch_id
+        if incident_batch
+        else None
+    )
+    
     print(f"Generated {len(payments)} payments")
     print("-----------------------------")
 
@@ -225,6 +286,16 @@ def main():
 
     print()
     print(f"Ground truth written to {ground_truth_path}")
+
+    print()
+    print("State Graph")
+    print("-----------------------------")
+    print(f"Merchants:       {len(state_graph.merchants)}")
+    print(f"Payments:        {len(state_graph.payments)}")
+    print(f"Refunds:         {len(state_graph.refunds)}")
+    print(f"Webhook events:  {len(state_graph.webhook_events)}")
+    print(f"Settlements:     {len(state_graph.settlements)}")
+    print(f"Batches:         {len(state_graph.batches)}")
 
 if __name__ == "__main__":
     main()
