@@ -15,6 +15,7 @@ from investigation.blast_radius import analyze_blast_radius
 from investigation.incident_correlator import correlate_incidents
 from investigation.incident_report import build_incident_report
 from investigation.exposure import calculate_financial_exposure 
+from investigation.state_graph import build_state_graph
 
 from incidents.detector import detect_incidents
 
@@ -30,7 +31,8 @@ from simulator.incident_generator import generate_refund_event_latency_incident
 from simulator.ground_truth_generator import generate_incident_ground_truth
 from simulator.systemic_incident_generator import generate_systemic_refund_latency_incidents
 
-from investigation.state_graph import build_state_graph
+from governance.action_policy import recommend_action
+from governance.approval import create_approval_request, review_approval_request
 
 import random
 
@@ -685,6 +687,53 @@ def main():
         f"Unresolved exposure: "
         f"₹{hero_report.financial_exposure.unresolved_exposure}"
     )
+
+    action_recommendation = recommend_action(hero_report)
+
+    print()
+    print("Recommended Action")
+    print("-----------------------------")
+
+    print(
+        f"Action: {action_recommendation.action}"
+    )
+
+    print(
+        f"Priority: {action_recommendation.priority}"
+    )
+
+    print(
+        f"Requires approval: {action_recommendation.requires_approval}"
+    )
+
+    print(
+        f"Reason: {action_recommendation.reason}"
+    )
+
+    approval_request = create_approval_request(
+        incident_id=hero_report.incident_id,
+        recommendation=action_recommendation,
+        request_number=1,
+    )
+
+    print()
+    print("Approval")
+    print("-----------------------------")
+
+    print(
+        f"Request: "
+        f"{approval_request.request_id}"
+    )
+
+    print(
+        f"Status: "
+        f"{approval_request.status}"
+    )
+
+    print(
+        f"Requested at: "
+        f"{approval_request.requested_at}"
+    ) 
 
 if __name__ == "__main__":
     main()
