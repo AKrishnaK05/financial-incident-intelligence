@@ -8,6 +8,8 @@ from dataclasses import asdict
 
 from datetime import datetime, timezone
 
+from investigation.evidence import collect_incident_evidence
+
 from incidents.detector import detect_incidents
 
 from financial_engine.settlement_engine import calculate_settlement
@@ -222,6 +224,70 @@ def main():
         if incident_batch
         else None
     )
+
+    print()
+    print("Incident Evidence")
+    print("-----------------------------")
+
+    for incident in detected_incidents:
+        evidence = collect_incident_evidence(
+            incident,
+            state_graph,
+        )
+
+        print(f"Incident: {evidence.incident_id}")
+
+        print(
+            f"Payment: {evidence.payment.payment_id} "
+            f"₹{evidence.payment.amount}"
+        )
+
+        print(
+            f"Refunds: "
+            f"{len(evidence.refunds)}"
+        )
+
+        for refund in evidence.refunds:
+            print(
+                f"  {refund.refund_id}: "
+                f"₹{refund.amount}, "
+                f"processed={refund.processed_at}"
+            )
+
+        print(
+            f"Webhook events: "
+            f"{len(evidence.webhook_events)}"
+        )
+
+        for event in evidence.webhook_events:
+            print(
+                f"  {event.event_id}: "
+                f"emitted={event.emitted_at}, "
+                f"delivered={event.delivered_at}"
+            )
+
+        print(
+            f"Settlement: "
+            f"{evidence.settlement.settlement_id}"
+        )
+
+        print(
+            f"  Expected: "
+            f"₹{evidence.settlement.expected_net_amount}"
+        )
+
+        print(
+        f"  Observed: "
+        f"₹{evidence.settlement.observed_net_amount}"
+        )
+
+        if evidence.batch is not None:
+            print(
+                f"Batch: "
+                f"{evidence.batch.batch_id}"
+            )
+        else:
+            print("Batch: NOT FOUND")
     
     print(f"Generated {len(payments)} payments")
     print("-----------------------------")
