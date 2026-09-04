@@ -25,6 +25,7 @@ from simulator.webhook_generator import generate_refund_webhook
 from simulator.scenario_assigner import assign_refund_event_latency
 from simulator.incident_generator import generate_refund_event_latency_incident
 from simulator.ground_truth_generator import generate_incident_ground_truth
+from simulator.systemic_incident_generator import generate_systemic_refund_latency_incidents
 
 from investigation.state_graph import build_state_graph
 
@@ -96,22 +97,32 @@ def main():
 
     incident_refund_id = incident_refund.refund_id
 
+    systemic_merchants, systemic_payments, systemic_refunds = (
+    generate_systemic_refund_latency_incidents()
+    )
+
+    merchants.extend(systemic_merchants)
+    payments.extend(systemic_payments)
+    refunds.extend(systemic_refunds)
+
     webhook_events = []
 
-    for event_number, refund in enumerate(refunds, start=1):
-        
+    for index, refund in enumerate(refunds, start=1):
         scenario = None
 
-        if refund.refund_id == incident_refund_id:
+        if (
+            refund.refund_id == incident_refund.refund_id
+            or refund.refund_id.startswith("RFND_SYS_")
+        ):
             scenario = "REFUND_EVENT_LATENCY"
 
-        event = generate_refund_webhook(
-            event_number=event_number,
-            refund=refund,
+        webhook_event = generate_refund_webhook(
+            index,
+            refund,
             scenario=scenario,
         )
 
-        webhook_events.append(event)
+        webhook_events.append(webhook_event)
     
     settlements = []
 
