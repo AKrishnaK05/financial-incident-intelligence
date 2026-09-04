@@ -389,96 +389,16 @@ def main():
                 f"{incident.payment_id}"
             )
 
-    timeline = analyze_timeline(evidence)
-
     blast_radius = analyze_blast_radius(
     detected_incidents,
     state_graph,
     )
 
-    print()
-    print("Blast Radius")
-    print("-----------------------------")
-
-    print(
-        f"Affected payments: "
-        f"{blast_radius.affected_payment_count}"
-    )
-
-    print(
-        f"Affected merchants: "
-        f"{blast_radius.affected_merchant_count}"
-    )
-
-    print(
-        f"Payment methods: "
-        f"{blast_radius.affected_payment_methods}"
-    )
-
-    print(
-        f"First affected transaction: "
-        f"{blast_radius.first_affected_at}"
-    )
-
     cluster_map = {}
-
     for cluster in incident_clusters:
         for incident in cluster.incidents:
             cluster_map[incident.incident_id] = cluster
 
-    print()
-    print("Timeline Facts")
-    print("-----------------------------")
-
-    print(
-        f"Refund processed before cutoff: "
-        f"{timeline.refund_processed_before_cutoff}"
-    )
-
-    print(
-        f"Webhook delivered before cutoff: "
-        f"{timeline.webhook_delivered_before_cutoff}"
-    )
-
-    if timeline.webhook_delivery_delay is not None:
-        print(
-            f"Webhook delivery delay: "
-            f"{timeline.webhook_delivery_delay}"
-        )
-
-    if timeline.refund_to_webhook_delay is not None:
-        print(
-            f"Refund to webhook delay: "
-            f"{timeline.refund_to_webhook_delay}"
-        )
-
-    hypotheses = evaluate_hypotheses(
-    evidence,
-    timeline,
-    )
-
-    print()
-    print("Hypotheses")
-    print("-----------------------------")
-
-    for hypothesis in hypotheses:
-        print(
-            f"{hypothesis.name}: "
-            f"{hypothesis.status} "
-            f"({hypothesis.confidence})"
-        )
-
-        print("Supporting evidence:")
-
-        for item in hypothesis.supporting_evidence:
-            print(f"  + {item}")
-
-        if hypothesis.contradicting_evidence:
-            print("Contradicting evidence:")
-
-            for item in hypothesis.contradicting_evidence:
-                print(f"  - {item}")
-    
     print(f"Generated {len(payments)} payments")
     print("-----------------------------")
 
