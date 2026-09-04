@@ -21,7 +21,6 @@ class BlastRadius:
 
     affected_payment_count: int
     affected_merchant_count: int
-    total_exposure: int
     affected_payment_methods: list[str]
     first_affected_at: datetime | None
 
@@ -38,7 +37,6 @@ def analyze_blast_radius(
     affected_merchants = set()
     affected_payment_methods = set()
 
-    total_exposure = 0
     first_affected_at = None
 
     for incident in incidents:
@@ -52,8 +50,6 @@ def analyze_blast_radius(
         affected_merchants.add(payment.merchant_id)
         affected_payment_methods.add(payment.method)
 
-        total_exposure += abs(incident.variance_amount)
-
         if (
             first_affected_at is None
             or payment.captured_at < first_affected_at
@@ -63,7 +59,6 @@ def analyze_blast_radius(
     return BlastRadius(
         affected_payment_count=len(affected_payments),
         affected_merchant_count=len(affected_merchants),
-        total_exposure=total_exposure,
         affected_payment_methods=sorted(
             affected_payment_methods
         ),

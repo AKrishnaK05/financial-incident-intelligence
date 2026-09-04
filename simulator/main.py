@@ -14,6 +14,7 @@ from investigation.hypothesis_engine import evaluate_hypotheses
 from investigation.blast_radius import analyze_blast_radius
 from investigation.incident_correlator import correlate_incidents
 from investigation.incident_report import build_incident_report
+from investigation.exposure import calculate_financial_exposure 
 
 from incidents.detector import detect_incidents
 
@@ -208,6 +209,10 @@ def main():
         "PAY_INC_000001"
     )
 
+    financial_exposure = calculate_financial_exposure(
+        detected_incidents
+    )
+
     print()
     print("Incident Graph Traversal")
     print("-----------------------------")
@@ -400,11 +405,6 @@ def main():
     )
 
     print(
-        f"Total exposure: "
-        f"₹{blast_radius.total_exposure}"
-    )
-
-    print(
         f"Payment methods: "
         f"{blast_radius.affected_payment_methods}"
     )
@@ -590,6 +590,7 @@ def main():
                 incident.incident_id
             ],
             blast_radius=blast_radius,
+            financial_exposure=financial_exposure,
             cluster=cluster,
         )
 
@@ -671,8 +672,18 @@ def main():
     )
 
     print(
-        f"Total exposure: "
-        f"₹{hero_report.blast_radius.total_exposure}"
+        f"Incident count: "
+        f"{hero_report.financial_exposure.incident_count}"
+    )
+
+    print(
+        f"Gross variance: "
+        f"₹{hero_report.financial_exposure.gross_variance}"
+    )
+
+    print(
+        f"Unresolved exposure: "
+        f"₹{hero_report.financial_exposure.unresolved_exposure}"
     )
 
 if __name__ == "__main__":

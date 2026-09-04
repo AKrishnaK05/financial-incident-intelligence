@@ -16,7 +16,7 @@ from investigation.evidence import IncidentEvidence
 from investigation.hypothesis_engine import Hypothesis
 from investigation.incident_correlator import IncidentCluster
 from investigation.timeline import TimelineFacts
-
+from investigation.exposure import FinancialExposure
 
 @dataclass
 class IncidentReport:
@@ -38,6 +38,7 @@ class IncidentReport:
     timeline: TimelineFacts
 
     blast_radius: BlastRadius
+    financial_exposure: FinancialExposure
 
     cluster_id: str | None
     cluster_scope: str | None
@@ -80,6 +81,7 @@ def build_incident_report(
     timeline: TimelineFacts,
     hypotheses: list[Hypothesis],
     blast_radius: BlastRadius,
+    financial_exposure: FinancialExposure,
     cluster: IncidentCluster | None = None,
 ) -> IncidentReport:
     """
@@ -111,6 +113,7 @@ def build_incident_report(
         hypotheses=hypotheses,
         timeline=timeline,
         blast_radius=blast_radius,
+        financial_exposure=financial_exposure,
         cluster_id=cluster_id,
         cluster_scope=cluster_scope,
         cluster_mechanism=cluster_mechanism,
