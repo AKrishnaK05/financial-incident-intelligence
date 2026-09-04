@@ -13,6 +13,7 @@ from investigation.timeline import analyze_timeline
 from investigation.hypothesis_engine import evaluate_hypotheses
 from investigation.blast_radius import analyze_blast_radius
 from investigation.incident_correlator import correlate_incidents
+from investigation.incident_report import build_incident_report
 
 from incidents.detector import detect_incidents
 
@@ -246,7 +247,11 @@ def main():
 
     evidence_map = {}
     timeline_map = {}
+    hypotheses_map = {}
 
+    print()
+    print("Incident Evidence")
+    print("-----------------------------")
 
     for incident in detected_incidents:
         evidence = collect_incident_evidence(
@@ -255,9 +260,14 @@ def main():
         )
 
         timeline = analyze_timeline(evidence)
+        hypotheses = evaluate_hypotheses(
+            evidence,
+            timeline,
+        )
 
         evidence_map[incident.incident_id] = evidence
         timeline_map[incident.incident_id] = timeline
+        hypotheses_map[incident.incident_id] = hypotheses
 
         print(f"Incident: {evidence.incident_id}")
 
@@ -404,6 +414,12 @@ def main():
         f"{blast_radius.first_affected_at}"
     )
 
+    cluster_map = {}
+
+    for cluster in incident_clusters:
+        for incident in cluster.incidents:
+            cluster_map[incident.incident_id] = cluster
+
     print()
     print("Timeline Facts")
     print("-----------------------------")
@@ -547,6 +563,117 @@ def main():
     print(f"Webhook events:  {len(state_graph.webhook_events)}")
     print(f"Settlements:     {len(state_graph.settlements)}")
     print(f"Batches:         {len(state_graph.batches)}")
+
+    incident_reports = []
+
+    for incident in detected_incidents:
+        evidence = evidence_map.get(
+            incident.incident_id
+        )
+
+        timeline = timeline_map.get(
+            incident.incident_id
+        )
+
+        if evidence is None or timeline is None:
+            continue
+
+        cluster = cluster_map.get(
+            incident.incident_id
+        )
+
+        report = build_incident_report(
+            incident=incident,
+            evidence=evidence,
+            timeline=timeline,
+            hypotheses=hypotheses_map[
+                incident.incident_id
+            ],
+            blast_radius=blast_radius,
+            cluster=cluster,
+        )
+
+        incident_reports.append(report)
+
+    hero_report = next(
+        report
+        for report in incident_reports
+        if report.payment_id == "PAY_INC_000001"
+    )
+
+    print()
+    print("Incident Report")
+    print("-----------------------------")
+
+    print(
+        f"Incident: {hero_report.incident_id}"
+    )
+
+    print(
+        f"Payment: {hero_report.payment_id}"
+    )
+
+    print(
+        f"Settlement: {hero_report.settlement_id}"
+    )
+
+    print(
+        f"Expected: ₹{hero_report.expected_amount}"
+    )
+
+    print(
+        f"Observed: ₹{hero_report.observed_amount}"
+    )
+
+    print(
+        f"Variance: ₹{abs(hero_report.variance_amount)}"
+    )
+
+    print(
+        f"Severity: {hero_report.severity}"
+    )
+
+    primary_hypothesis = (
+        hero_report.primary_hypothesis
+    )
+
+    if primary_hypothesis is not None:
+        print(
+            f"Primary hypothesis: "
+            f"{primary_hypothesis.name}"
+        )
+
+        print(
+            f"Confidence: "
+            f"{primary_hypothesis.confidence}"
+        )
+
+    print(
+        f"Cluster: {hero_report.cluster_id}"
+    )
+
+    print(
+        f"Scope: {hero_report.cluster_scope}"
+    )
+
+    print(
+        f"Mechanism: {hero_report.cluster_mechanism}"
+    )
+
+    print(
+        f"Affected payments: "
+        f"{hero_report.blast_radius.affected_payment_count}"
+    )
+
+    print(
+        f"Affected merchants: "
+        f"{hero_report.blast_radius.affected_merchant_count}"
+    )
+
+    print(
+        f"Total exposure: "
+        f"₹{hero_report.blast_radius.total_exposure}"
+    )
 
 if __name__ == "__main__":
     main()
