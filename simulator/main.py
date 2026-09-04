@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from investigation.evidence import collect_incident_evidence
 from investigation.timeline import analyze_timeline
 from investigation.hypothesis_engine import evaluate_hypotheses
+from investigation.blast_radius import analyze_blast_radius
 
 from incidents.detector import detect_incidents
 
@@ -292,6 +293,40 @@ def main():
             print("Batch: NOT FOUND")
 
     timeline = analyze_timeline(evidence)
+
+    blast_radius = analyze_blast_radius(
+    detected_incidents,
+    state_graph,
+    )
+
+    print()
+    print("Blast Radius")
+    print("-----------------------------")
+
+    print(
+        f"Affected payments: "
+        f"{blast_radius.affected_payment_count}"
+    )
+
+    print(
+        f"Affected merchants: "
+        f"{blast_radius.affected_merchant_count}"
+    )
+
+    print(
+        f"Total exposure: "
+        f"₹{blast_radius.total_exposure}"
+    )
+
+    print(
+        f"Payment methods: "
+        f"{blast_radius.affected_payment_methods}"
+    )
+
+    print(
+        f"First affected transaction: "
+        f"{blast_radius.first_affected_at}"
+    )
 
     print()
     print("Timeline Facts")
