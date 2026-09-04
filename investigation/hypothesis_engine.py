@@ -105,6 +105,146 @@ def evaluate_refund_event_latency(
     )
 
 
+def evaluate_missing_refund(
+    evidence: IncidentEvidence,
+    timeline: TimelineFacts,
+) -> Hypothesis:
+    """
+    Evaluate whether a missing refund could explain the discrepancy.
+    """
+
+    supporting_evidence = []
+    contradicting_evidence = []
+
+    variance_amount = abs(
+        evidence.settlement.expected_net_amount
+        - evidence.settlement.observed_net_amount
+    )
+
+    if not evidence.refunds:
+        supporting_evidence.append(
+            "No refund records were found for the payment."
+        )
+    else:
+        contradicting_evidence.append(
+            "A refund record exists for the payment."
+        )
+
+    refund_amount = sum(
+        refund.amount
+        for refund in evidence.refunds
+        if refund.processed_at <= evidence.settlement.cutoff_at
+    )
+
+    if refund_amount == variance_amount and refund_amount > 0:
+        contradicting_evidence.append(
+            "An existing processed refund already explains "
+            "the financial variance."
+        )
+
+    if len(contradicting_evidence) == 0:
+        status = "PLAUSIBLE"
+        confidence = "MEDIUM"
+    else:
+        status = "UNSUPPORTED"
+        confidence = "LOW"
+
+    return Hypothesis(
+        name="MISSING_REFUND",
+        status=status,
+        confidence=confidence,
+        supporting_evidence=supporting_evidence,
+        contradicting_evidence=contradicting_evidence,
+    )
+
+
+def evaluate_duplicate_adjustment(
+    evidence: IncidentEvidence,
+    timeline: TimelineFacts,
+) -> Hypothesis:
+    """
+    Evaluate whether a duplicate adjustment could explain
+    the financial discrepancy.
+    """
+
+    supporting_evidence = []
+    contradicting_evidence = []
+
+    if len(evidence.refunds) > 1:
+        supporting_evidence.append(
+            "Multiple refunds exist for the payment."
+        )
+    else:
+        contradicting_evidence.append(
+            "Only one refund exists for the payment."
+        )
+
+    if not evidence.refunds:
+        contradicting_evidence.append(
+            "No refund adjustment exists to duplicate."
+        )
+
+    if len(supporting_evidence) == 0:
+        status = "UNSUPPORTED"
+        confidence = "LOW"
+    else:
+        status = "PLAUSIBLE"
+        confidence = "MEDIUM"
+
+    return Hypothesis(
+        name="DUPLICATE_ADJUSTMENT",
+        status=status,
+        confidence=confidence,
+        supporting_evidence=supporting_evidence,
+        contradicting_evidence=contradicting_evidence,
+    )
+
+
+def evaluate_settlement_calculation_error(
+    evidence: IncidentEvidence,
+    timeline: TimelineFacts,
+) -> Hypothesis:
+    """
+    Evaluate whether the settlement representation itself
+    appears inconsistent with the underlying financial events.
+    """
+
+    supporting_evidence = []
+    contradicting_evidence = []
+
+    expected_from_events = evidence.payment.amount - sum(
+        refund.amount
+        for refund in evidence.refunds
+        if refund.processed_at <= evidence.settlement.cutoff_at
+    )
+
+    if expected_from_events != evidence.settlement.expected_net_amount:
+        supporting_evidence.append(
+            "Settlement expected amount does not match "
+            "underlying payment and refund events."
+        )
+    else:
+        contradicting_evidence.append(
+            "Settlement expected amount matches "
+            "underlying payment and refund events."
+        )
+
+    if len(supporting_evidence) > 0:
+        status = "PLAUSIBLE"
+        confidence = "MEDIUM"
+    else:
+        status = "UNSUPPORTED"
+        confidence = "LOW"
+
+    return Hypothesis(
+        name="SETTLEMENT_CALCULATION_ERROR",
+        status=status,
+        confidence=confidence,
+        supporting_evidence=supporting_evidence,
+        contradicting_evidence=contradicting_evidence,
+    )
+
+
 def evaluate_hypotheses(
     evidence: IncidentEvidence,
     timeline: TimelineFacts,
@@ -113,11 +253,21 @@ def evaluate_hypotheses(
     Evaluate all currently supported root-cause hypotheses.
     """
 
-    hypotheses = [
+    return [
         evaluate_refund_event_latency(
             evidence,
             timeline,
-        )
+        ),
+        evaluate_missing_refund(
+            evidence,
+            timeline,
+        ),
+        evaluate_duplicate_adjustment(
+            evidence,
+            timeline,
+        ),
+        evaluate_settlement_calculation_error(
+            evidence,
+            timeline,
+        ),
     ]
-
-    return hypotheses
