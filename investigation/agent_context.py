@@ -4,8 +4,9 @@ Curated investigation context for Financial Incident Intelligence.
 This module defines the information that may be provided to
 the AI investigation agent.
 
-The agent receives established facts rather than unrestricted
-access to the financial state graph.
+The agent receives established facts and deterministic
+reasoning results rather than unrestricted access to the
+financial state graph.
 """
 
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ from governance.action_policy import ActionRecommendation
 from investigation.evidence import IncidentEvidence
 from investigation.hypothesis_engine import Hypothesis
 from investigation.incident_report import IncidentReport
+from investigation.reasoning import ReasoningAssessment
 from investigation.timeline import TimelineFacts
 
 
@@ -38,6 +40,7 @@ class AgentContext:
     evidence: IncidentEvidence
     timeline: TimelineFacts
     hypotheses: list[Hypothesis]
+    reasoning: ReasoningAssessment
     recommendation: ActionRecommendation
     evidence_boundary: EvidenceBoundary
 
@@ -128,11 +131,21 @@ def build_agent_context(
         report,
     )
 
+    reasoning = ReasoningAssessment(
+        primary_hypothesis=None,
+        primary_confidence="LOW",
+        primary_score=0.0,
+        second_best_score=0.0,
+        evidence_margin=0.0,
+        assessments=[],
+    )
+
     return AgentContext(
         report=report,
         evidence=evidence,
         timeline=timeline,
         hypotheses=hypotheses,
+        reasoning=reasoning,
         recommendation=recommendation,
         evidence_boundary=evidence_boundary,
     )
