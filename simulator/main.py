@@ -16,8 +16,12 @@ from investigation.incident_correlator import correlate_incidents
 from investigation.incident_report import build_incident_report
 from investigation.exposure import calculate_financial_exposure 
 from investigation.state_graph import build_state_graph
+from investigation.agent_context import build_agent_context
+from investigation.agent_prompt import build_investigation_prompt
+from investigation.agent_adaptor import MockInvestigationAgent
+from investigation.agent_validator import validate_investigation_narrative
 
-from incidents.detector import detect_incidents
+from incidents.detector import detect_incidents 
 
 from financial_engine.settlement_engine import calculate_settlement
 from financial_engine.batch_builder import build_settlement_batch
@@ -734,6 +738,94 @@ def main():
         f"Requested at: "
         f"{approval_request.requested_at}"
     ) 
+
+    hero_evidence = evidence_map[
+        hero_report.incident_id
+    ]
+
+    hero_timeline = timeline_map[
+        hero_report.incident_id
+    ]
+
+    hero_hypotheses = hypotheses_map[
+        hero_report.incident_id
+    ]
+
+    agent_context = build_agent_context(
+        report=hero_report,
+        evidence=hero_evidence,
+        timeline=hero_timeline,
+        hypotheses=hero_hypotheses,
+        recommendation=action_recommendation,
+    )
+
+    investigation_prompt = build_investigation_prompt(
+        agent_context
+    )
+
+    agent = MockInvestigationAgent()
+
+    agent_response = agent.investigate(
+        agent_context
+    )
+
+    narrative = agent_response.narrative
+
+    validate_investigation_narrative(
+        narrative,
+        agent_context,
+    )
+    
+    print()
+    print("AI Investigation")
+    print("-----------------------------")
+
+    print(
+        f"Provider: "
+        f"{agent_response.provider}"
+    )
+
+    print(
+        f"Model: "
+        f"{agent_response.model}"
+    )
+
+    print(
+        f"Summary: "
+        f"{narrative.summary}"
+    )
+
+    print(
+        f"Root cause: "
+        f"{narrative.root_cause}"
+    )
+
+    print(
+        f"Confidence: "
+        f"{narrative.confidence}"
+    )
+
+    print("Evidence:")
+
+    for evidence in narrative.evidence_summary:
+        print(
+            f"  + {evidence}"
+        )
+
+    print("Uncertainty:")
+
+    if narrative.uncertainty:
+        for uncertainty in narrative.uncertainty:
+            print(
+                f"  - {uncertainty}"
+            )
+    else:
+        print("  None identified.")
+
+    print(
+        f"Recommended action: "
+        f"{narrative.recommended_action}"
+    )
 
 if __name__ == "__main__":
     main()
