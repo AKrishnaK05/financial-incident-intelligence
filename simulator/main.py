@@ -8,6 +8,8 @@ from dataclasses import asdict
 
 from datetime import datetime, timezone
 
+from incidents.detector import detect_incidents
+
 from financial_engine.settlement_engine import calculate_settlement
 from financial_engine.batch_builder import build_settlement_batch
 
@@ -134,6 +136,21 @@ def main():
                 settlement=settlement,
             )
             break
+
+    detected_incidents = detect_incidents(settlements)
+
+    print()
+    print("Detected Incidents")
+    print("-----------------------------")
+
+    for incident in detected_incidents:
+        print(
+            f"{incident.incident_id}: "
+            f"Payment={incident.payment_id}, "
+            f"Settlement={incident.settlement_id}, "
+            f"Variance=₹{abs(incident.variance_amount)}, "
+            f"Severity={incident.severity}"
+        )
 
     for merchant in merchants:
         batch = build_settlement_batch(
