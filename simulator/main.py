@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 
 from investigation.evidence import collect_incident_evidence
 from investigation.timeline import analyze_timeline
+from investigation.hypothesis_engine import evaluate_hypotheses
 
 from incidents.detector import detect_incidents
 
@@ -317,6 +318,33 @@ def main():
             f"Refund to webhook delay: "
             f"{timeline.refund_to_webhook_delay}"
         )
+
+    hypotheses = evaluate_hypotheses(
+    evidence,
+    timeline,
+    )
+
+    print()
+    print("Hypotheses")
+    print("-----------------------------")
+
+    for hypothesis in hypotheses:
+        print(
+            f"{hypothesis.name}: "
+            f"{hypothesis.status} "
+            f"({hypothesis.confidence})"
+        )
+
+        print("Supporting evidence:")
+
+        for item in hypothesis.supporting_evidence:
+            print(f"  + {item}")
+
+        if hypothesis.contradicting_evidence:
+            print("Contradicting evidence:")
+
+            for item in hypothesis.contradicting_evidence:
+                print(f"  - {item}")
     
     print(f"Generated {len(payments)} payments")
     print("-----------------------------")
