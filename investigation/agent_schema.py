@@ -4,15 +4,13 @@ Structured output schema for the Financial Incident Intelligence agent.
 This module defines the exact structure expected from a language model.
 """
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class AgentOutput(BaseModel):
     """
     Structured response returned by the investigation agent.
     """
-
-    model_config = ConfigDict(extra="forbid")
 
     incident_id: str
     summary: str

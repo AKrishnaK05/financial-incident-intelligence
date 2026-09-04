@@ -10,8 +10,8 @@ RANDOM_SEED = 42
 
 MERCHANT_COUNT = 50
 
-AGENT_PROVIDER = "openai"
-AGENT_MODEL = "gpt-5.6-luna"
+AGENT_PROVIDER = "gemini"
+AGENT_MODEL = "gemini-2.5-flash"
 
 
 # ---------------------------------------------------------------------------

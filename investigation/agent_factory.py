@@ -28,6 +28,15 @@ def create_investigation_agent() -> InvestigationLLM:
             model=AGENT_MODEL
         )
 
+    if AGENT_PROVIDER == "gemini":
+        from investigation.providers.gemini_provider import (
+            GeminiInvestigationAgent,
+        )
+
+        return GeminiInvestigationAgent(
+            model=AGENT_MODEL
+        )
+
     raise ValueError(
         f"Unsupported agent provider: "
         f"{AGENT_PROVIDER}"
