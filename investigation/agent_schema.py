@@ -1,6 +1,6 @@
 """External LLM output schema and conversion boundary."""
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from investigation.investigation_models import InvestigationNarrative
 from investigation.reasoning import ReasoningAssessment
@@ -8,8 +8,6 @@ from investigation.reasoning import ReasoningAssessment
 
 class AgentOutput(BaseModel):
     """Exact JSON shape accepted from an investigation LLM."""
-
-    model_config = ConfigDict(extra="forbid")
 
     incident_id: str
     summary: str

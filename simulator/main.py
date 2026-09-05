@@ -8,6 +8,14 @@ Run with::
     python -m simulator.main
 """
 
+import sys
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 from pipeline import investigate_report, run_pipeline
 
 

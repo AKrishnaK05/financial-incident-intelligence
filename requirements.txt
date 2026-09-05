@@ -2,6 +2,7 @@
 
 # Testing
 pytest>=8.0
+python-dotenv>=1.0
 
 # Structured LLM output
 pydantic>=2.7

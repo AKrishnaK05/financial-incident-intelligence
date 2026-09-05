@@ -13,6 +13,15 @@ from configs.schema import Payment, Refund, WebhookEvent
 CUTOFF = datetime(2026, 8, 20, 12, 0, tzinfo=timezone.utc)
 
 
+@pytest.fixture(autouse=True)
+def default_mock_agent(monkeypatch):
+    """Ensure test suite runs deterministically offline using the mock agent."""
+    monkeypatch.setenv("AGENT_PROVIDER", "mock")
+    import configs.settings
+
+    monkeypatch.setattr(configs.settings, "AGENT_PROVIDER", "mock")
+
+
 @pytest.fixture
 def cutoff():
     return CUTOFF

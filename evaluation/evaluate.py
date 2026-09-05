@@ -23,7 +23,14 @@ Usage:
 """
 
 import json
+import sys
 from dataclasses import asdict, dataclass
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 from pipeline import PipelineResult, run_pipeline
 

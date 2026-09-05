@@ -1,17 +1,22 @@
 """Factory for selecting the configured investigation provider."""
 
-from configs.settings import AGENT_MODEL, AGENT_PROVIDER
+from configs import settings
 from investigation.agent_adapter import MockInvestigationAgent
 from investigation.llm_interface import InvestigationLLM
 
 
 def create_investigation_agent() -> InvestigationLLM:
-    if AGENT_PROVIDER == "mock":
+    provider = settings.AGENT_PROVIDER
+    model = settings.AGENT_MODEL
+
+    if provider == "mock":
         return MockInvestigationAgent()
-    if AGENT_PROVIDER == "gemini":
+    if provider == "gemini":
         from investigation.providers.gemini_provider import GeminiInvestigationAgent
-        return GeminiInvestigationAgent(model=AGENT_MODEL)
-    if AGENT_PROVIDER == "openai":
+
+        return GeminiInvestigationAgent(model=model)
+    if provider == "openai":
         from investigation.providers.openai_provider import OpenAIInvestigationAgent
-        return OpenAIInvestigationAgent(model=AGENT_MODEL)
-    raise ValueError(f"Unsupported agent provider: {AGENT_PROVIDER}")
+
+        return OpenAIInvestigationAgent(model=model)
+    raise ValueError(f"Unsupported agent provider: {provider}")
