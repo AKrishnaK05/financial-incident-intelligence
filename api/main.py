@@ -14,7 +14,10 @@ from pydantic import BaseModel, Field
 
 from evaluation.evaluate import evaluate, report_to_dict
 from pipeline import PipelineResult, investigate_report, run_pipeline
-from governance.approval import review_approval_request
+from governance.approval import (
+    resolve_approval_request,
+    review_approval_request,
+)
 
 
 app = FastAPI(
@@ -42,6 +45,13 @@ class ApprovalDecision(BaseModel):
     approved: bool
     reviewer: str = Field(min_length=1, max_length=100)
     reason: str = Field(min_length=1, max_length=500)
+
+
+class ResolutionDecision(BaseModel):
+    """Human confirmation that an approved exception has been closed."""
+
+    resolver: str = Field(min_length=1, max_length=100)
+    note: str = Field(min_length=1, max_length=500)
 
 
 def _json_safe(value):
@@ -102,7 +112,11 @@ def _incident_summary(result: PipelineResult) -> list[dict]:
                 "recommended_action": (
                     recommendation.action if recommendation else None
                 ),
-                "resolution_status": "UNRESOLVED",
+                "resolution_status": (
+                    result.approval_requests[incident.incident_id].status
+                    if incident.incident_id in result.approval_requests
+                    else "UNRESOLVED"
+                ),
             }
         )
     return summaries
@@ -220,3 +234,37 @@ def decide_approval(incident_id: str, decision: ApprovalDecision):
         raise HTTPException(status_code=409, detail=str(error)) from error
 
     return _json_safe(updated)
+
+
+@app.post("/incidents/{incident_id}/resolve")
+def resolve_incident(
+    incident_id: str,
+    decision: ResolutionDecision,
+):
+    """Close an approved exception in the governed demo workflow."""
+
+    result = _require_result()
+    _find_report(result, incident_id)
+
+    request = result.approval_requests.get(incident_id)
+
+    if request is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Approval request not found.",
+        )
+
+    try:
+        updated = resolve_approval_request(
+            request,
+            resolver=decision.resolver,
+            note=decision.note,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=409,
+            detail=str(error),
+        ) from error
+
+    return _json_safe(updated)
+

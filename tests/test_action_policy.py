@@ -132,3 +132,32 @@ def test_no_action_is_ever_unsupervised():
 
     for report in scenarios:
         assert recommend_action(report).requires_approval is True
+
+
+def test_approval_and_resolution_lifecycle():
+    import pytest
+    from governance.approval import (
+        create_approval_request,
+        resolve_approval_request,
+        review_approval_request,
+    )
+
+    rec = recommend_action(make_report([supported_hypothesis("HIGH")], "SYSTEMIC"))
+    req = create_approval_request("INC_001", rec, 1)
+
+    assert req.status == "PENDING_APPROVAL"
+    assert req.request_id == "APR_000001"
+
+    with pytest.raises(ValueError, match="Only approved requests can be resolved"):
+        resolve_approval_request(req, "Finance Ops", "Direct resolve")
+
+    req = review_approval_request(req, approved=True, reviewer="Alice", reason="Evidence matches")
+    assert req.status == "APPROVED"
+    assert req.reviewer == "Alice"
+
+    req = resolve_approval_request(req, resolver="Bob", note="Simulated remediation completed")
+    assert req.status == "RESOLVED"
+    assert req.resolver == "Bob"
+    assert req.resolution_note == "Simulated remediation completed"
+    assert req.resolved_at is not None
+

@@ -27,6 +27,9 @@ class ApprovalRequest:
     reviewed_at: datetime | None = None
     reviewer: str | None = None
     decision_reason: str | None = None
+    resolved_at: datetime | None = None
+    resolver: str | None = None
+    resolution_note: str | None = None
 
 def create_approval_request(
     incident_id: str,
@@ -73,6 +76,31 @@ def review_approval_request(
     request.reviewed_at = datetime.now(timezone.utc)
     request.reviewer = reviewer
     request.decision_reason = reason
+
+    return request
+
+
+def resolve_approval_request(
+    request: ApprovalRequest,
+    resolver: str,
+    note: str,
+) -> ApprovalRequest:
+    """
+    Close an approved finance-ops exception in the demo workflow.
+
+    Resolution is simulated: this changes workflow state but does not move
+    money, alter a real settlement, or execute an external financial action.
+    """
+
+    if request.status != "APPROVED":
+        raise ValueError(
+            "Only approved requests can be resolved."
+        )
+
+    request.status = "RESOLVED"
+    request.resolved_at = datetime.now(timezone.utc)
+    request.resolver = resolver
+    request.resolution_note = note
 
     return request
 

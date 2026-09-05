@@ -8,6 +8,10 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from governance.approval import (
+    resolve_approval_request,
+    review_approval_request,
+)
 from pipeline import investigate_report, run_pipeline  # noqa: E402
 
 
@@ -35,12 +39,16 @@ with st.sidebar:
     random_seed = st.number_input("Random seed", value=42, step=1)
     run_clicked = st.button("Run investigation pipeline", type="primary", use_container_width=True)
 
+if "resolved_incidents" not in st.session_state:
+    st.session_state.resolved_incidents = set()
+
 if "result" not in st.session_state or run_clicked:
     with st.spinner("Building financial state and detecting incidents..."):
         st.session_state.result = run_pipeline(
             base_payment_count=int(base_payment_count),
             random_seed=int(random_seed),
         )
+    st.session_state.resolved_incidents = set()
     st.session_state.pop("ai_responses", None)
 
 result = st.session_state.result
@@ -51,6 +59,14 @@ result = st.session_state.result
 
 total = len(result.state_graph.settlements)
 exceptions = len(result.detected_incidents)
+
+resolved_count = sum(
+    1
+    for incident in result.detected_incidents
+    if incident.incident_id in st.session_state.resolved_incidents
+)
+
+unresolved_count = exceptions - resolved_count
 matched = total - exceptions
 match_rate = matched / total * 100 if total else 0.0
 
@@ -60,14 +76,14 @@ cols[0].metric("Records", f"{total:,}")
 cols[1].metric("Matched", f"{matched:,}")
 cols[2].metric("Exceptions", f"{exceptions:,}")
 cols[3].metric("Match rate", f"{match_rate:.2f}%")
-cols[4].metric("Unresolved", f"{exceptions:,}")
+cols[4].metric("Unresolved", f"{unresolved_count:,}")
 cols[5].metric("Gross variance", f"₹{result.financial_exposure.gross_variance:,}")
 cols[6].metric("Affected payments", f"{result.financial_exposure.affected_payment_count:,}")
 
 st.info(
     f"Finance-ops loop: {total:,} records processed → {matched:,} matched → "
-    f"{exceptions:,} exceptions investigated. {exceptions:,} remain unresolved "
-    "pending governed human review; no financial remediation is executed automatically."
+    f"{exceptions:,} exceptions investigated ({resolved_count:,} resolved, {unresolved_count:,} unresolved). "
+    "Exceptions require governed human review; no financial remediation is executed automatically."
 )
 
 # ---------------------------------------------------------------------------
@@ -103,6 +119,15 @@ for incident in result.detected_incidents:
     cluster = result.cluster_map.get(incident.incident_id)
     recommendation = result.action_recommendations[incident.incident_id]
     reasoning = result.reasoning_map[incident.incident_id]
+    status = (
+        "RESOLVED"
+        if incident.incident_id in st.session_state.resolved_incidents
+        else (
+            result.approval_requests[incident.incident_id].status
+            if incident.incident_id in result.approval_requests
+            else "UNRESOLVED"
+        )
+    )
     incident_rows.append(
         {
             "Incident": incident.incident_id,
@@ -114,7 +139,7 @@ for incident in result.detected_incidents:
             "Margin": reasoning.evidence_margin,
             "Scope": cluster.scope if cluster else "ISOLATED",
             "Action": recommendation.action,
-            "Status": "UNRESOLVED",
+            "Status": status,
         }
     )
 
@@ -220,9 +245,117 @@ with right:
     st.markdown(f"**{recommendation.action}** · {recommendation.priority}")
     st.caption(recommendation.reason)
     if approval:
-        st.warning(
-            f"Human approval required · `{approval.request_id}` · {approval.status}"
-        )
+        if approval.status == "PENDING_APPROVAL":
+            st.warning(
+                f"Human approval required · `{approval.request_id}` · {approval.status}"
+            )
+            reviewer = st.text_input(
+                "Reviewer",
+                key=f"reviewer_{selected_id}",
+                value="Finance Ops",
+            )
+            decision_reason = st.text_input(
+                "Decision reason",
+                key=f"reason_{selected_id}",
+                value="Approved based on verified telemetry evidence.",
+            )
+            if st.button(
+                "Approve recommendation",
+                key=f"approve_{selected_id}",
+                use_container_width=True,
+            ):
+                review_approval_request(
+                    approval,
+                    approved=True,
+                    reviewer=reviewer.strip() or "Finance Ops",
+                    reason=decision_reason.strip() or "Approved",
+                )
+                st.rerun()
+
+        elif approval.status == "APPROVED":
+            st.success(
+                f"Approval `{approval.request_id}` · **APPROVED** · "
+                f"Reviewer: {approval.reviewer or '—'}"
+            )
+
+            if approval.decision_reason:
+                st.caption(
+                    f"Approval reason: {approval.decision_reason}"
+                )
+
+            if selected_id not in st.session_state.resolved_incidents:
+
+                st.markdown("##### Close exception")
+
+                st.caption(
+                    "Approval authorizes the recommended finance-ops follow-up. "
+                    "Closing below records a simulated resolution; it does not move money."
+                )
+
+                resolver = st.text_input(
+                    "Resolver",
+                    key=f"resolver_{selected_id}",
+                    value=approval.reviewer or "",
+                    placeholder="e.g. Finance Ops",
+                )
+
+                resolution_note = st.text_area(
+                    "Resolution note",
+                    key=f"resolution_note_{selected_id}",
+                    placeholder=(
+                        "e.g. Exception reviewed and remediation workflow completed."
+                    ),
+                )
+
+                if st.button(
+                    "Resolve exception",
+                    key=f"resolve_{selected_id}",
+                    type="primary",
+                    use_container_width=True,
+                ):
+                    if not resolver.strip() or not resolution_note.strip():
+                        st.error(
+                            "Resolver and resolution note are required."
+                        )
+                    else:
+                        resolve_approval_request(
+                            approval,
+                            resolver=resolver.strip(),
+                            note=resolution_note.strip(),
+                        )
+
+                        st.session_state.resolved_incidents.add(
+                            selected_id
+                        )
+
+                        st.success(
+                            "Exception resolved. The demo records closure "
+                            "without executing a real financial action."
+                        )
+
+                        st.rerun()
+
+            else:
+                st.success(
+                    f"Exception **RESOLVED** · "
+                    f"Resolver: {approval.resolver or '—'}"
+                )
+
+                if approval.resolution_note:
+                    st.caption(
+                        f"Resolution note: {approval.resolution_note}"
+                    )
+
+        elif approval.status == "RESOLVED":
+            st.success(
+                f"Exception **RESOLVED** · "
+                f"Resolver: {approval.resolver or '—'}"
+            )
+
+            if approval.resolution_note:
+                st.caption(
+                    f"Resolution note: {approval.resolution_note}"
+                )
 
     st.markdown("#### AI investigation")
     if "ai_responses" not in st.session_state:
