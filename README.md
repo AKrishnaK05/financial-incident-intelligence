@@ -108,19 +108,24 @@ Synthetic payment / refund / webhook events
 - Post-generation validator that prevents the model from changing root cause, confidence, reasoning trace, or governed action
 - FastAPI backend
 - Streamlit investigation command center
+- 50+ record batch finance report with explicit match rate and unresolved exception list
 - Deterministic evaluation harness
 - Automated tests
 
 ## Current deterministic benchmark
 
-Default run: **10 base payments + 1 hero payment + 20 systemic payments**.
+Default run: **30 base payments + 1 hero payment + 20 systemic payments = 51 settlement records**. This deliberately satisfies the Track 04 requirement to operate across a 50+ record synthetic batch.
 
 Typical seed-42 result:
 
 | Metric | Result |
 |---|---:|
-| Settlements processed | 31 |
-| Detected incidents | 19 |
+| Settlements processed | 51 |
+| Matched records | 32 |
+| Detected incidents / exceptions | 19 |
+| Match rate | 62.75% |
+| Resolved exceptions | 0 |
+| Unresolved exceptions | 19 |
 | Precision | 1.0000 |
 | Recall | 1.0000 |
 | F1 | 1.0000 |
@@ -129,7 +134,20 @@ Typical seed-42 result:
 | Root-cause accuracy | 1.0000 |
 | Systemic incidents correctly clustered | 18/18 |
 
-The detection metric is intentionally transparent about its current limitation: the simulator currently has one incident mechanism and defines a real exception as expected-vs-observed variance. The evaluation harness is therefore a strong reproducibility/regression benchmark, but detection precision/recall will become genuinely discriminative after adding independent noise and unrelated incident types.
+The finance-ops loop is intentionally honest about resolution: the current demo processes the full 51-record batch, reports the match rate, investigates every exception, and produces a governed action for each exception. It does not execute financial remediation automatically. The 19 detected exceptions therefore remain explicitly unresolved and require human review. The detection metric is also transparent about its current limitation: the simulator currently has one incident mechanism and defines a real exception as expected-vs-observed variance. The evaluation harness is therefore a strong reproducibility/regression benchmark, but detection precision/recall will become genuinely discriminative after adding independent noise and unrelated incident types.
+
+## Track 04 alignment
+
+The default configuration is intentionally aligned with the AI Finance Controller brief:
+
+- **50+ synthetic records:** 51 settlement records per default run.
+- **Measured match rate:** 32 matched records / 51 total = **62.75%**.
+- **Exception list:** 19 detected financial exceptions are surfaced individually.
+- **Investigation:** each exception can be traced through evidence, timeline, hypotheses, reasoning, exposure, and governance.
+- **Honest unresolved list:** the demo explicitly reports 19 unresolved exceptions because it does not silently execute financial remediation.
+- **Measured accuracy:** detection, exposure, root-cause, and systemic-clustering metrics are evaluated independently against ground truth.
+
+This is a finance-ops investigation and governance loop, not a money-moving system. That boundary is intentional for a safe buildathon prototype.
 
 ## Run locally
 

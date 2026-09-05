@@ -25,10 +25,10 @@ st.caption(
 with st.sidebar:
     st.header("Simulation")
     base_payment_count = st.number_input(
-        "Base payments",
-        min_value=1,
+        "Base payments (30+)" ,
+        min_value=30,
         max_value=5000,
-        value=10,
+        value=30,
         step=10,
         help="Synthetic non-incident payments. Controlled hero/systemic incidents are added separately.",
     )
@@ -55,13 +55,20 @@ matched = total - exceptions
 match_rate = matched / total * 100 if total else 0.0
 
 st.subheader("Finance operations overview")
-cols = st.columns(6)
+cols = st.columns(7)
 cols[0].metric("Records", f"{total:,}")
 cols[1].metric("Matched", f"{matched:,}")
 cols[2].metric("Exceptions", f"{exceptions:,}")
 cols[3].metric("Match rate", f"{match_rate:.2f}%")
-cols[4].metric("Gross variance", f"₹{result.financial_exposure.gross_variance:,}")
-cols[5].metric("Affected payments", f"{result.financial_exposure.affected_payment_count:,}")
+cols[4].metric("Unresolved", f"{exceptions:,}")
+cols[5].metric("Gross variance", f"₹{result.financial_exposure.gross_variance:,}")
+cols[6].metric("Affected payments", f"{result.financial_exposure.affected_payment_count:,}")
+
+st.info(
+    f"Finance-ops loop: {total:,} records processed → {matched:,} matched → "
+    f"{exceptions:,} exceptions investigated. {exceptions:,} remain unresolved "
+    "pending governed human review; no financial remediation is executed automatically."
+)
 
 # ---------------------------------------------------------------------------
 # Incident clusters
@@ -87,6 +94,9 @@ if result.clusters:
 # ---------------------------------------------------------------------------
 
 st.subheader("Incident queue")
+st.caption(
+    "Exceptions requiring human review are shown explicitly; no financial remediation is executed automatically."
+)
 incident_rows = []
 for incident in result.detected_incidents:
     report = result.report_by_payment(incident.payment_id)
@@ -104,6 +114,7 @@ for incident in result.detected_incidents:
             "Margin": reasoning.evidence_margin,
             "Scope": cluster.scope if cluster else "ISOLATED",
             "Action": recommendation.action,
+            "Status": "UNRESOLVED",
         }
     )
 

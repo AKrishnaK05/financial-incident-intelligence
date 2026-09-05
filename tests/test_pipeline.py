@@ -72,3 +72,18 @@ def test_evaluation_report_has_no_false_positives_or_negatives():
     assert report.detection.false_positives == 0
     assert report.detection.false_negatives == 0
     assert report.exposure.absolute_error == 0
+
+
+def test_default_pipeline_meets_50_plus_record_batch_requirement():
+    result = run_pipeline()
+
+    total = len(result.state_graph.settlements)
+    exceptions = len(result.detected_incidents)
+    matched = total - exceptions
+
+    assert total >= 50
+    assert total == 51
+    assert exceptions == 19
+    assert matched == 32
+    assert round(matched / total * 100, 2) == 62.75
+    assert len(result.approval_requests) == exceptions

@@ -102,6 +102,7 @@ def _incident_summary(result: PipelineResult) -> list[dict]:
                 "recommended_action": (
                     recommendation.action if recommendation else None
                 ),
+                "resolution_status": "UNRESOLVED",
             }
         )
     return summaries
@@ -113,12 +114,12 @@ def health():
 
 
 @app.post("/run")
-def run(base_payment_count: int = 10, random_seed: int = 42):
+def run(base_payment_count: int = 30, random_seed: int = 42):
     """Generate a deterministic synthetic batch and investigate its exceptions."""
 
     global _last_result
-    if base_payment_count < 1 or base_payment_count > 50000:
-        raise HTTPException(status_code=400, detail="base_payment_count must be 1..50000")
+    if base_payment_count < 30 or base_payment_count > 50000:
+        raise HTTPException(status_code=400, detail="base_payment_count must be 30..50000 so the default finance-controller run always contains 50+ records")
 
     _last_result = run_pipeline(
         base_payment_count=base_payment_count,
@@ -139,6 +140,10 @@ def run(base_payment_count: int = 10, random_seed: int = 42):
             "gross_variance": result.financial_exposure.gross_variance,
             "unresolved_exposure": result.financial_exposure.unresolved_exposure,
             "affected_payments": result.financial_exposure.affected_payment_count,
+            "resolved_exceptions": 0,
+            "unresolved_exceptions": exceptions,
+            "loop_status": "INVESTIGATED_PENDING_HUMAN_REVIEW",
+            "financial_remediation_executed": False,
         },
         "clusters": [
             {

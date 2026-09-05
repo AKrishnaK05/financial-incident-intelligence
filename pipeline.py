@@ -54,7 +54,7 @@ from simulator.webhook_generator import generate_refund_webhook
 
 DEFAULT_START_TIME = datetime(2026, 8, 1, tzinfo=timezone.utc)
 DEFAULT_SETTLEMENT_CUTOFF = datetime(2026, 8, 20, 12, 0, tzinfo=timezone.utc)
-DEFAULT_BASE_PAYMENT_COUNT = 10
+DEFAULT_BASE_PAYMENT_COUNT = 30
 
 
 @dataclass
@@ -103,10 +103,10 @@ def run_pipeline(
     Run the full Financial Incident Intelligence pipeline once and
     return every intermediate artifact.
 
-    Deterministic for a fixed random_seed. The default scale mirrors
-    simulator/main.py (10 base payments, 1 hero incident, 20
-    systemic incidents); pass a larger base_payment_count for a
-    bigger benchmark run.
+    Deterministic for a fixed random_seed. The default scale is 30 base payments + 1 hero incident + 20
+    systemic incidents = 51 settlement records, satisfying the
+    buildathon batch-size requirement while keeping the run fast.
+    Pass a larger base_payment_count for a bigger benchmark run.
     """
 
     random.seed(random_seed)

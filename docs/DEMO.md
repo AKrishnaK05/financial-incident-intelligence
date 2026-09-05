@@ -2,6 +2,8 @@
 
 ## 1. Deterministic proof
 
+The default run processes **51 settlement records** (30 base + 1 hero + 20 systemic) and reports the batch match rate plus the exceptions that remain unresolved without human approval.
+
 ```bash
 python -m simulator.main
 ```
@@ -16,6 +18,8 @@ Use the hero incident to tell the story:
 - FII identifies `REFUND_EVENT_LATENCY`
 - correlated incidents expand the blast radius to multiple merchants
 - governance recommends `ESCALATE_INCIDENT`
+- the exception remains explicitly `UNRESOLVED` because financial remediation is not executed automatically
+- the batch report shows the 51-record throughput, 62.75% match rate, and 19 unresolved exceptions
 - approval remains pending for a human reviewer
 
 ## 2. Evaluation proof

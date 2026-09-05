@@ -40,7 +40,7 @@ def main() -> None:
             f"{incident.incident_id}: "
             f"{incident.payment_id} | "
             f"variance ₹{abs(incident.variance_amount):,} | "
-            f"{incident.severity}"
+            f"{incident.severity} | UNRESOLVED"
         )
 
     print("\nBatch finance report")
@@ -48,8 +48,18 @@ def main() -> None:
     print(f"Records processed: {total}")
     print(f"Matched:           {matched}")
     print(f"Match rate:        {match_rate:.2f}%")
-    print(f"Gross variance:    ₹{result.financial_exposure.gross_variance:,}")
-    print(f"Unresolved exposure: ₹{result.financial_exposure.unresolved_exposure:,}")
+    print(f"Gross variance:      ₹{result.financial_exposure.gross_variance:,}")
+    print(f"Resolved exceptions:  0")
+    print(f"Unresolved exceptions: {exceptions}")
+    print(f"Unresolved exposure:  ₹{result.financial_exposure.unresolved_exposure:,}")
+
+    print("\nFinance-ops loop")
+    print("-----------------------------")
+    print("Detection:            COMPLETE")
+    print("Investigation:        COMPLETE")
+    print("Governance decision:  READY")
+    print("Financial remediation: NOT EXECUTED")
+    print(f"Exceptions requiring review: {exceptions}")
 
     print("\nIncident clusters")
     print("-----------------------------")
