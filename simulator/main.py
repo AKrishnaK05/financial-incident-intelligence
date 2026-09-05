@@ -20,6 +20,7 @@ from investigation.agent_context import build_agent_context
 from investigation.agent_prompt import build_investigation_prompt
 from investigation.agent_factory import create_investigation_agent
 from investigation.agent_validator import validate_investigation_narrative
+from investigation.service import InvestigationService
 
 from incidents.detector import detect_incidents 
 
@@ -659,92 +660,60 @@ def main():
         f"{approval_request.requested_at}"
     ) 
 
-    hero_evidence = evidence_map[
-        hero_report.incident_id
-    ]
+    hero_incident = detected_incidents[0]
 
-    hero_timeline = timeline_map[
-        hero_report.incident_id
-    ]
+    hero_cluster = None
 
-    hero_hypotheses = hypotheses_map[
-        hero_report.incident_id
-    ]
+    for cluster in incident_clusters:
+        if any(
+            incident.incident_id == hero_incident.incident_id
+            for incident in cluster.incidents
+        ):
+            hero_cluster = cluster
+            break
 
-    agent_context = build_agent_context(
-        report=hero_report,
-        evidence=hero_evidence,
-        timeline=hero_timeline,
-        hypotheses=hero_hypotheses,
-        recommendation=action_recommendation,
+    investigation_service = InvestigationService()
+
+    investigation_result = investigation_service.investigate(
+        incident=hero_incident,
+        graph=state_graph,
+        all_incidents=detected_incidents,
+        evidence_map=evidence_map,
+        timeline_map=timeline_map,
+        cluster=hero_cluster,
     )
 
-    investigation_prompt = build_investigation_prompt(
-        agent_context
-    )
-
-    agent = create_investigation_agent()
-
-    agent_response = agent.investigate(
-        agent_context
-    )
-
-    narrative = agent_response.narrative
-
-    validate_investigation_narrative(
-        narrative,
-        agent_context,
-    )
-    
-    print()
-    print("AI Investigation")
+    print("\nService Investigation")
     print("-----------------------------")
 
     print(
-        f"Provider: "
-        f"{agent_response.provider}"
-    )
-
-    print(
-        f"Model: "
-        f"{agent_response.model}"
-    )
-
-    print(
-        f"Summary: "
-        f"{narrative.summary}"
+        f"Incident: "
+        f"{investigation_result.incident.incident_id}"
     )
 
     print(
         f"Root cause: "
-        f"{narrative.root_cause}"
+        f"{investigation_result.agent_response.narrative.root_cause}"
     )
 
     print(
         f"Confidence: "
-        f"{narrative.confidence}"
+        f"{investigation_result.agent_response.narrative.confidence}"
     )
-
-    print("Evidence:")
-
-    for evidence in narrative.evidence_summary:
-        print(
-            f"  + {evidence}"
-        )
-
-    print("Uncertainty:")
-
-    if narrative.uncertainty:
-        for uncertainty in narrative.uncertainty:
-            print(
-                f"  - {uncertainty}"
-            )
-    else:
-        print("  None identified.")
 
     print(
         f"Recommended action: "
-        f"{narrative.recommended_action}"
+        f"{investigation_result.recommendation.action}"
+    )
+
+    print(
+        f"Reasoning score: "
+        f"{investigation_result.reasoning.primary_score}"
+    )
+
+    print(
+        f"Evidence margin: "
+        f"{investigation_result.reasoning.evidence_margin}"
     )
 
 if __name__ == "__main__":

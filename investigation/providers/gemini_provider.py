@@ -18,7 +18,8 @@ from investigation.agent_schema import (
     AgentOutput,
     convert_agent_output,
 )
-from investigation.llm_interface import InvestigationLLM, AgentResponse
+from investigation.investigation_models import AgentResponse
+from investigation.llm_interface import InvestigationLLM
 
 
 class GeminiInvestigationAgent(InvestigationLLM):
@@ -74,6 +75,9 @@ class GeminiInvestigationAgent(InvestigationLLM):
         narrative = convert_agent_output(
             output
         )
+
+        narrative.reasoning = context.reasoning
+
 
         return AgentResponse(
             narrative=narrative,

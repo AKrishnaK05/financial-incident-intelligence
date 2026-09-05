@@ -109,6 +109,7 @@ def build_agent_context(
     evidence: IncidentEvidence,
     timeline: TimelineFacts,
     hypotheses: list[Hypothesis],
+    reasoning: ReasoningAssessment,
     recommendation: ActionRecommendation,
 ) -> AgentContext:
     """
@@ -129,15 +130,6 @@ def build_agent_context(
         evidence,
         timeline,
         report,
-    )
-
-    reasoning = ReasoningAssessment(
-        primary_hypothesis=None,
-        primary_confidence="LOW",
-        primary_score=0.0,
-        second_best_score=0.0,
-        evidence_margin=0.0,
-        assessments=[],
     )
 
     return AgentContext(

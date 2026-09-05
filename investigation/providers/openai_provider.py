@@ -11,10 +11,13 @@ import os
 
 from openai import OpenAI
 
-from investigation.agent import InvestigationNarrative
 from investigation.agent_context import AgentContext
 from investigation.agent_prompt import build_investigation_prompt
-from investigation.llm_interface import AgentResponse, InvestigationLLM
+from investigation.investigation_models import (
+    AgentResponse,
+    InvestigationNarrative,
+)
+from investigation.llm_interface import InvestigationLLM
 from investigation.agent_schema import (
     AGENT_OUTPUT_SCHEMA,
     convert_agent_output,

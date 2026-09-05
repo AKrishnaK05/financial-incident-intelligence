@@ -11,11 +11,11 @@ and testing before connecting a real LLM.
 from dataclasses import dataclass
 
 from investigation.agent_context import AgentContext
-from investigation.agent import InvestigationNarrative
-from investigation.llm_interface import (
+from investigation.investigation_models import (
     AgentResponse,
-    InvestigationLLM,
+    InvestigationNarrative,
 )
+from investigation.llm_interface import InvestigationLLM
 
 class MockInvestigationAgent(InvestigationLLM):
     """
@@ -87,6 +87,7 @@ class MockInvestigationAgent(InvestigationLLM):
             recommended_action=(
                 context.recommendation.action
             ),
+            reasoning=context.reasoning,
         )
 
         return AgentResponse(

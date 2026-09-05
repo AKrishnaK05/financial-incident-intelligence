@@ -6,6 +6,8 @@ This module defines the exact structure expected from a language model.
 
 from pydantic import BaseModel
 
+from investigation.investigation_models import InvestigationNarrative
+
 
 class AgentOutput(BaseModel):
     """
@@ -22,13 +24,11 @@ class AgentOutput(BaseModel):
 
 def convert_agent_output(
     output: AgentOutput,
-) -> "InvestigationNarrative":
+) -> InvestigationNarrative:
     """
     Convert validated structural output into the domain
     investigation narrative.
     """
-
-    from investigation.agent import InvestigationNarrative
 
     return InvestigationNarrative(
         incident_id=output.incident_id,

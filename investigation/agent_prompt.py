@@ -41,6 +41,12 @@ Rules:
     mechanism from the underlying cause.
 14. If uncertainty exists in the investigation context,
     include it in the uncertainty section of the response.
+15. Treat the deterministic reasoning assessment as a ranking
+    signal, not as a probability. Do not describe the evidence
+    score as a statistical probability or percentage.
+16. Do not select a weaker hypothesis merely because it is
+    more speculative or narratively plausible when a supported
+    hypothesis has been established.
 """
 
 
@@ -55,6 +61,7 @@ def build_investigation_prompt(
     evidence = context.evidence
     timeline = context.timeline
     hypotheses = context.hypotheses
+    reasoning = context.reasoning
     recommendation = context.recommendation
 
     refund_lines = []
@@ -152,6 +159,31 @@ Unresolved questions:
 Investigation hypotheses:
 {chr(10).join(hypothesis_lines)}
 
+Reasoning assessment:
+- Primary hypothesis:
+  {context.reasoning.primary_hypothesis}
+- Primary confidence:
+  {context.reasoning.primary_confidence}
+- Primary evidence score:
+  {context.reasoning.primary_score}
+- Second-best evidence score:
+  {context.reasoning.second_best_score}
+- Evidence margin:
+  {context.reasoning.evidence_margin}
+
+Ranked hypothesis assessments:
+{chr(10).join(
+    f"- {assessment.hypothesis_name}: "
+    f"status={assessment.status}, "
+    f"confidence={assessment.confidence}, "
+    f"evidence_score={assessment.evidence_score}, "
+    f"supporting_evidence_count="
+    f"{assessment.supporting_evidence_count}, "
+    f"contradicting_evidence_count="
+    f"{assessment.contradicting_evidence_count}"
+    for assessment in context.reasoning.assessments
+)}
+
 Blast radius:
 - Affected payments:
   {report.blast_radius.affected_payment_count}
@@ -197,7 +229,7 @@ Produce an investigation narrative containing:
 3. The confidence level supported by the evidence.
 4. The key evidence supporting that conclusion.
 5. Any remaining uncertainty or contradictory evidence.
-6. The supplied governance recommendation.
+6. The strictly matched governed recommended_action string from the context.
 
 Do not invent information that is not present in this context.
 """
