@@ -242,6 +242,8 @@ with right:
         st.write(narrative.summary)
         st.markdown(f"**Root cause:** `{narrative.root_cause}`")
         st.markdown(f"**Confidence:** **{narrative.confidence}**")
+        if narrative.recommended_action:
+            st.markdown(f"**Recommended action:** `{narrative.recommended_action}`")
         st.markdown("**Remaining uncertainty**")
         for item in narrative.uncertainty:
             st.markdown(f"- {item}")
