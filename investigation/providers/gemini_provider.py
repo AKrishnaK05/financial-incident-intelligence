@@ -73,11 +73,9 @@ class GeminiInvestigationAgent(InvestigationLLM):
         )
 
         narrative = convert_agent_output(
-            output
+            output,
+            context.reasoning,
         )
-
-        narrative.reasoning = context.reasoning
-
 
         return AgentResponse(
             narrative=narrative,

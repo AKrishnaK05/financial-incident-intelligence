@@ -1,23 +1,9 @@
-"""
-Central configuration for the Financial Incident Intelligence project.
-"""
+"""Central configuration for Financial Incident Intelligence."""
 
-# ---------------------------------------------------------------------------
-# Reproducibility
-# ---------------------------------------------------------------------------
+import os
 
 RANDOM_SEED = 42
-
 MERCHANT_COUNT = 50
-
-AGENT_PROVIDER = "gemini"
-AGENT_MODEL = "gemini-2.5-flash"
-
-
-# ---------------------------------------------------------------------------
-# Synthetic data generation
-# ---------------------------------------------------------------------------
-
 DEFAULT_CURRENCY = "INR"
 
 PAYMENT_METHODS = [
@@ -37,3 +23,8 @@ PAYMENT_AMOUNTS = [
     10000,
     15000,
 ]
+
+# Keep the default deterministic so the project runs without credentials.
+# Set AGENT_PROVIDER=gemini for the real AI demo.
+AGENT_PROVIDER = os.getenv("AGENT_PROVIDER", "mock").lower()
+AGENT_MODEL = os.getenv("AGENT_MODEL", "gemini-2.5-flash")

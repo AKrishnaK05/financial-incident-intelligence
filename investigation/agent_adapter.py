@@ -8,8 +8,6 @@ The mock adapter is deterministic and exists for development
 and testing before connecting a real LLM.
 """
 
-from dataclasses import dataclass
-
 from investigation.agent_context import AgentContext
 from investigation.investigation_models import (
     AgentResponse,

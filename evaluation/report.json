@@ -1,0 +1,67 @@
+{
+    "total_settlements": 31,
+    "detection": {
+        "true_positives": 19,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+    },
+    "exposure": {
+        "ground_truth_total": 21000,
+        "detected_total": 21000,
+        "absolute_error": 0,
+        "percent_error": 0.0
+    },
+    "root_cause": {
+        "evaluated": 19,
+        "correct": 19,
+        "accuracy": 1.0
+    },
+    "cluster": {
+        "true_systemic_incident_ids": [
+            "INC_CAND_000002",
+            "INC_CAND_000003",
+            "INC_CAND_000004",
+            "INC_CAND_000005",
+            "INC_CAND_000006",
+            "INC_CAND_000007",
+            "INC_CAND_000008",
+            "INC_CAND_000009",
+            "INC_CAND_000010",
+            "INC_CAND_000011",
+            "INC_CAND_000012",
+            "INC_CAND_000013",
+            "INC_CAND_000014",
+            "INC_CAND_000015",
+            "INC_CAND_000016",
+            "INC_CAND_000017",
+            "INC_CAND_000018",
+            "INC_CAND_000019"
+        ],
+        "detected_systemic_incident_ids": [
+            "INC_CAND_000002",
+            "INC_CAND_000003",
+            "INC_CAND_000004",
+            "INC_CAND_000005",
+            "INC_CAND_000006",
+            "INC_CAND_000007",
+            "INC_CAND_000008",
+            "INC_CAND_000009",
+            "INC_CAND_000010",
+            "INC_CAND_000011",
+            "INC_CAND_000012",
+            "INC_CAND_000013",
+            "INC_CAND_000014",
+            "INC_CAND_000015",
+            "INC_CAND_000016",
+            "INC_CAND_000017",
+            "INC_CAND_000018",
+            "INC_CAND_000019"
+        ],
+        "correctly_included": 18,
+        "missed": 0,
+        "incorrectly_included": 0
+    }
+}

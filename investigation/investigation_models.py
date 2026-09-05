@@ -1,11 +1,4 @@
-"""
-Internal investigation models for Financial Incident Intelligence.
-
-This module contains application-level objects used to represent
-the result of an AI-assisted financial investigation.
-
-These models are independent of any specific LLM provider.
-"""
+"""Internal models returned by investigation providers."""
 
 from dataclasses import dataclass
 
@@ -14,9 +7,7 @@ from investigation.reasoning import ReasoningAssessment
 
 @dataclass
 class InvestigationNarrative:
-    """
-    Structured narrative produced by the investigation agent.
-    """
+    """Validated, human-readable investigation result."""
 
     incident_id: str
     summary: str
@@ -25,14 +16,12 @@ class InvestigationNarrative:
     evidence_summary: list[str]
     uncertainty: list[str]
     recommended_action: str
-    reasoning: ReasoningAssessment | None = None
+    reasoning: ReasoningAssessment
 
 
 @dataclass
 class AgentResponse:
-    """
-    Complete response returned by an investigation provider.
-    """
+    """Provider metadata plus the validated investigation narrative."""
 
     narrative: InvestigationNarrative
     provider: str

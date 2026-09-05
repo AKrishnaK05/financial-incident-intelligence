@@ -1,18 +1,15 @@
-"""
-Structured output schema for the Financial Incident Intelligence agent.
+"""External LLM output schema and conversion boundary."""
 
-This module defines the exact structure expected from a language model.
-"""
-
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from investigation.investigation_models import InvestigationNarrative
+from investigation.reasoning import ReasoningAssessment
 
 
 class AgentOutput(BaseModel):
-    """
-    Structured response returned by the investigation agent.
-    """
+    """Exact JSON shape accepted from an investigation LLM."""
+
+    model_config = ConfigDict(extra="forbid")
 
     incident_id: str
     summary: str
@@ -22,13 +19,12 @@ class AgentOutput(BaseModel):
     uncertainty: list[str]
     recommended_action: str
 
+
 def convert_agent_output(
     output: AgentOutput,
+    reasoning: ReasoningAssessment,
 ) -> InvestigationNarrative:
-    """
-    Convert validated structural output into the domain
-    investigation narrative.
-    """
+    """Convert external LLM output into the internal domain model."""
 
     return InvestigationNarrative(
         incident_id=output.incident_id,
@@ -38,4 +34,5 @@ def convert_agent_output(
         evidence_summary=output.evidence_summary,
         uncertainty=output.uncertainty,
         recommended_action=output.recommended_action,
+        reasoning=reasoning,
     )

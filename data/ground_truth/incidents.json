@@ -1,13 +1,211 @@
 [
-    {
-        "incident_id": "INC_000001",
-        "scenario": "REFUND_EVENT_LATENCY",
-        "root_cause": "REFUND_EVENT_LATENCY",
-        "payment_id": "PAY_INC_000001",
-        "refund_id": "RFND_INC_000001",
-        "settlement_id": "SET_000011",
-        "expected_amount": 7000,
-        "observed_amount": 10000,
-        "exposure_amount": 3000
-    }
+  {
+    "incident_id": "INC_000001",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_INC_000001",
+    "refund_id": "RFND_INC_000001",
+    "settlement_id": "SET_000011",
+    "expected_amount": 7000,
+    "observed_amount": 10000,
+    "exposure_amount": 3000
+  },
+  {
+    "incident_id": "INC_000002",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000003",
+    "refund_id": "RFND_SYS_000003",
+    "settlement_id": "SET_000014",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000003",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000004",
+    "refund_id": "RFND_SYS_000004",
+    "settlement_id": "SET_000015",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000004",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000005",
+    "refund_id": "RFND_SYS_000005",
+    "settlement_id": "SET_000016",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000005",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000006",
+    "refund_id": "RFND_SYS_000006",
+    "settlement_id": "SET_000017",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000006",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000007",
+    "refund_id": "RFND_SYS_000007",
+    "settlement_id": "SET_000018",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000007",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000008",
+    "refund_id": "RFND_SYS_000008",
+    "settlement_id": "SET_000019",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000008",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000009",
+    "refund_id": "RFND_SYS_000009",
+    "settlement_id": "SET_000020",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000009",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000010",
+    "refund_id": "RFND_SYS_000010",
+    "settlement_id": "SET_000021",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000010",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000011",
+    "refund_id": "RFND_SYS_000011",
+    "settlement_id": "SET_000022",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000011",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000012",
+    "refund_id": "RFND_SYS_000012",
+    "settlement_id": "SET_000023",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000012",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000013",
+    "refund_id": "RFND_SYS_000013",
+    "settlement_id": "SET_000024",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000013",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000014",
+    "refund_id": "RFND_SYS_000014",
+    "settlement_id": "SET_000025",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000014",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000015",
+    "refund_id": "RFND_SYS_000015",
+    "settlement_id": "SET_000026",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000015",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000016",
+    "refund_id": "RFND_SYS_000016",
+    "settlement_id": "SET_000027",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000016",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000017",
+    "refund_id": "RFND_SYS_000017",
+    "settlement_id": "SET_000028",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000017",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000018",
+    "refund_id": "RFND_SYS_000018",
+    "settlement_id": "SET_000029",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000018",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000019",
+    "refund_id": "RFND_SYS_000019",
+    "settlement_id": "SET_000030",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  },
+  {
+    "incident_id": "INC_000019",
+    "scenario": "REFUND_EVENT_LATENCY",
+    "root_cause": "REFUND_EVENT_LATENCY",
+    "payment_id": "PAY_SYS_000020",
+    "refund_id": "RFND_SYS_000020",
+    "settlement_id": "SET_000031",
+    "expected_amount": 4000,
+    "observed_amount": 5000,
+    "exposure_amount": 1000
+  }
 ]
