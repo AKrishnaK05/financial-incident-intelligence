@@ -5,9 +5,12 @@ from investigation.agent_adapter import MockInvestigationAgent
 from investigation.llm_interface import InvestigationLLM
 
 
-def create_investigation_agent() -> InvestigationLLM:
-    provider = settings.AGENT_PROVIDER
-    model = settings.AGENT_MODEL
+def create_investigation_agent(
+    provider: str | None = None,
+    model: str | None = None,
+) -> InvestigationLLM:
+    provider = provider or settings.AGENT_PROVIDER
+    model = model or settings.AGENT_MODEL
 
     if provider == "mock":
         return MockInvestigationAgent()
@@ -20,3 +23,13 @@ def create_investigation_agent() -> InvestigationLLM:
 
         return OpenAIInvestigationAgent(model=model)
     raise ValueError(f"Unsupported agent provider: {provider}")
+
+
+# Alias for backward and caller compatibility
+build_investigation_provider = create_investigation_agent
+
+__all__ = [
+    "create_investigation_agent",
+    "build_investigation_provider",
+]
+
